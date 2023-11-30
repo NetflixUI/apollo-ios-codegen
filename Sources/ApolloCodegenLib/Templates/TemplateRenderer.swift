@@ -289,9 +289,9 @@ struct ImportStatementTemplate {
       @_exported import \(apolloAPITargetName)
       \(if: config.output.operations != .inSchemaModule, "import \(config.schemaModuleName)")
       \(forEachIn: config.options.patternMatchedOutputOptions, {
-        let matches = try? Glob([$0.key]).match().contains(fileName)
+        let matches = try? Glob([$0.key], relativeTo: config.rootURL).match().contains(fileName)
         if matches ?? false {
-          return "import \($0.value.additionallyImportedModuleNames.joined(separator: "\n"))"
+          return "\($0.value.additionallyImportedModuleNames.map { "import \($0)"}.joined(separator: "\n"))"
         }
         return nil
       })
