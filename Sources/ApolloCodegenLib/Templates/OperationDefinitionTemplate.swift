@@ -14,7 +14,7 @@ struct OperationDefinitionTemplate: OperationTemplateRenderer {
 
   let config: ApolloCodegen.ConfigurationContext
 
-  var target: TemplateTarget { .operationFile(name: URL(fileURLWithPath: fragment.definition.filePath).absoluteString }
+  var target: TemplateTarget { .operationFile(name: operation.definition.filePath) }
 
   var template: TemplateString {
     let definition = IR.Definition.operation(operation)

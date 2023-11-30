@@ -1,4 +1,5 @@
 import TemplateString
+import Foundation
 
 // MARK: TemplateRenderer
 
@@ -74,7 +75,7 @@ extension TemplateRenderer {
   func render() -> String {
     switch target {
     case let .schemaFile(type): return renderSchemaFile(type)
-    case let .operationFile(sourceFile): return renderOperationFile(sourceFile)
+    case let .operationFile(sourceFile): return renderOperationFile(URL(fileURLWithPath: sourceFile).absoluteString)
     case .moduleFile: return renderModuleFile()
     case .testMockFile: return renderTestMockFile()
     }
