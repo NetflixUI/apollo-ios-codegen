@@ -8,7 +8,7 @@ struct LocalCacheMutationDefinitionTemplate: OperationTemplateRenderer {
 
   let config: ApolloCodegen.ConfigurationContext
 
-  let target: TemplateTarget = .operationFile
+  var target: TemplateTarget { .operationFile(name: operation.generatedDefinitionName) }
 
   var template: TemplateString {
     let definition = IR.Definition.operation(operation)
