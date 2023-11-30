@@ -32,7 +32,7 @@ extension FileGenerator {
       .appendingPathExtension(fileExtension)
       .path
 
-    let rendered: String = template.render(at: filePath)
+    let rendered: String = template.render()
 
     try await fileManager.createFile(
       atPath: filePath,
