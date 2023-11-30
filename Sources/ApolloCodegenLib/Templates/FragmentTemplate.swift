@@ -10,7 +10,7 @@ struct FragmentTemplate: TemplateRenderer {
 
   let config: ApolloCodegen.ConfigurationContext
 
-    var target: TemplateTarget { .operationFile(name: fragment.definition.filePath) }
+    var target: TemplateTarget { .operationFile(name: URL(fileURLWithPath: fragment.definition.filePath).absoluteString ) }
 
   var template: TemplateString {
     let definition = IR.Definition.namedFragment(fragment)
