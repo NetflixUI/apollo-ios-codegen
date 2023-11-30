@@ -71,10 +71,10 @@ extension TemplateRenderer {
   ///
   /// - Parameter config: Shared codegen configuration.
   /// - Returns: Swift code derived from the template format.
-  func render() -> String {
+  func render(at filepath: String) -> String {
     switch target {
     case let .schemaFile(type): return renderSchemaFile(type)
-    case let .operationFile(fileName): return renderOperationFile(fileName)
+    case .operationFile: return renderOperationFile(filepath)
     case .moduleFile: return renderModuleFile()
     case .testMockFile: return renderTestMockFile()
     }
