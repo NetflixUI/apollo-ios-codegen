@@ -460,6 +460,9 @@ public struct ApolloCodegenConfiguration: Codable, Equatable {
   public struct OutputOptions: Codable, Equatable {
     public struct PatternMatchedOutputOptions: Codable, Equatable {
       let additionallyImportedModuleNames: [String]
+      public init(additionallyImportedModuleNames: [String]) {
+        self.additionallyImportedModuleNames = additionallyImportedModuleNames
+      }
     }
     public let patternMatchedOutputOptions: [String: PatternMatchedOutputOptions]
     /// Any non-default rules for pluralization or singularization you wish to include.
