@@ -8,7 +8,8 @@ struct LocalCacheMutationDefinitionTemplate: OperationTemplateRenderer {
 
   let config: ApolloCodegen.ConfigurationContext
 
-  let target: TemplateTarget = .operationFile
+    var target: TemplateTarget { directiveToImportStatement(directives: operation.definition.directives) }
+
 
   func renderBodyTemplate(
     nonFatalErrorRecorder: ApolloCodegen.NonFatalError.Recorder

@@ -7,7 +7,7 @@ enum TemplateTarget: Equatable {
   /// Used in schema types files; enum, input object, union, etc.
   case schemaFile(type: SchemaFileType)
   /// Used in operation files; query, mutation, fragment, etc.
-  case operationFile
+  case operationFile(additionalImports: [String])
   /// Used in files that define a module; Swift Package Manager, etc.
   case moduleFile
   /// Used in test mock files; schema object `Mockable` extensions
@@ -23,7 +23,7 @@ enum TemplateTarget: Equatable {
     case customScalar
     case inputObject
 
-    var namespaceComponent: String? {      
+    var namespaceComponent: String? {
       switch self {
       case .schemaMetadata, .enum, .customScalar, .inputObject, .schemaConfiguration:
         return nil
@@ -103,7 +103,7 @@ extension TemplateRenderer {
     let body = {
       switch target {
       case let .schemaFile(type): return renderSchemaFile(type, errorRecorder)
-      case .operationFile: return renderOperationFile(errorRecorder)
+      case let .operationFile(additionalImports): return renderOperationFile(additionalImports, errorRecorder)
       case .moduleFile: return renderModuleFile(errorRecorder)
       case .testMockFile: return renderTestMockFile(errorRecorder)
       }
@@ -153,12 +153,13 @@ extension TemplateRenderer {
   }
 
   private func renderOperationFile(
+    _ additionImports: [String],
     _ errorRecorder: ApolloCodegen.NonFatalError.Recorder
   ) -> String {
     TemplateString(
     """
     \(ifLet: renderHeaderTemplate(nonFatalErrorRecorder: errorRecorder), { "\($0)\n" })
-    \(ImportStatementTemplate.Operation.template(for: config))
+    \(ImportStatementTemplate.Operation.template(for: config, additionalImports: additionImports))
 
     \(if: config.output.operations.isInModule && !config.output.schemaTypes.isInModule,
       renderBodyTemplate(nonFatalErrorRecorder: errorRecorder)
@@ -330,12 +331,18 @@ struct ImportStatementTemplate {
 
   enum Operation {
     static func template(
-      for config: ApolloCodegen.ConfigurationContext
+      for config: ApolloCodegen.ConfigurationContext,
+      additionalImports: [String]
     ) -> TemplateString {
       let apolloAPITargetName = config.ApolloAPITargetName
       return """
       @_exported import \(apolloAPITargetName)
       \(if: config.output.operations != .inSchemaModule, "import \(config.schemaModuleName)")
+      \(forEachIn: additionalImports, {
+      return """
+              import \($0)
+              """
+          })
       """
     }
   }
