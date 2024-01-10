@@ -7,7 +7,7 @@ enum TemplateTarget: Equatable {
   /// Used in schema types files; enum, input object, union, etc.
   case schemaFile(type: SchemaFileType)
   /// Used in operation files; query, mutation, fragment, etc.
-  case operationFile(additionalImports: [String])
+  case operationFile(importModules: [String])
   /// Used in files that define a module; Swift Package Manager, etc.
   case moduleFile
   /// Used in test mock files; schema object `Mockable` extensions
@@ -103,7 +103,7 @@ extension TemplateRenderer {
     let body = {
       switch target {
       case let .schemaFile(type): return renderSchemaFile(type, errorRecorder)
-      case let .operationFile(additionalImports): return renderOperationFile(additionalImports, errorRecorder)
+      case let .operationFile(importModules): return renderOperationFile(importModules, errorRecorder)
       case .moduleFile: return renderModuleFile(errorRecorder)
       case .testMockFile: return renderTestMockFile(errorRecorder)
       }
@@ -153,13 +153,14 @@ extension TemplateRenderer {
   }
 
   private func renderOperationFile(
-    _ additionImports: [String],
+    _ importModules: [String],
     _ errorRecorder: ApolloCodegen.NonFatalError.Recorder
   ) -> String {
     TemplateString(
     """
     \(ifLet: renderHeaderTemplate(nonFatalErrorRecorder: errorRecorder), { "\($0)\n" })
-    \(ImportStatementTemplate.Operation.template(for: config, additionalImports: additionImports))
+    \(ImportStatementTemplate.Operation.template(for: config))
+    \(AdditionalImportStatementTemplate.template(importModules: importModules))
 
     \(if: config.output.operations.isInModule && !config.output.schemaTypes.isInModule,
       renderBodyTemplate(nonFatalErrorRecorder: errorRecorder)
@@ -331,18 +332,12 @@ struct ImportStatementTemplate {
 
   enum Operation {
     static func template(
-      for config: ApolloCodegen.ConfigurationContext,
-      additionalImports: [String]
+      for config: ApolloCodegen.ConfigurationContext
     ) -> TemplateString {
       let apolloAPITargetName = config.ApolloAPITargetName
       return """
       @_exported import \(apolloAPITargetName)
       \(if: config.output.operations != .inSchemaModule, "import \(config.schemaModuleName)")
-      \(forEachIn: additionalImports, {
-      return """
-              import \($0)
-              """
-          })
       """
     }
   }
@@ -355,6 +350,23 @@ struct ImportStatementTemplate {
       """
     }
   }
+}
+
+/// Provides the format to import additional Swift modules required by the template type.
+struct AdditionalImportStatementTemplate {
+
+  static func template(
+    importModules: [String]
+  ) -> TemplateString {
+    return """
+    \(forEachIn: importModules, {
+      return """
+      import \($0)
+      """
+    })
+    """
+  }
+    
 }
 
 fileprivate extension ApolloCodegenConfiguration {

@@ -14,7 +14,11 @@ struct OperationDefinitionTemplate: OperationTemplateRenderer {
 
   let config: ApolloCodegen.ConfigurationContext
 
-  var target: TemplateTarget { directiveToImportStatement(directives: operation.definition.directives) }
+  var target: TemplateTarget {
+    .operationFile(importModules: operation.definition.importDirectives.map {
+      $0.moduleName
+    })
+  }
 
   func renderBodyTemplate(
     nonFatalErrorRecorder: ApolloCodegen.NonFatalError.Recorder
@@ -102,17 +106,4 @@ fileprivate extension String {
   func formattedSource() -> Self {
     return "#\"\(convertedToSingleLine())\"#"
   }
-}
-
-
-func directiveToImportStatement(directives: [CompilationResult.Directive]?) -> TemplateTarget {
-    return .operationFile(additionalImports: (directives ?? []).compactMap { directive in
-        if directive.name == "import" {
-            if case .string(let value) = directive.arguments?.first?.value {
-                return String(describing: value)
-            }
-        }
-        
-        return nil
-    })
 }
