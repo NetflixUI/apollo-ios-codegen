@@ -360,7 +360,7 @@ struct ModuleImportStatementTemplate {
   ) -> TemplateString? {
     guard let moduleImports else  { return nil }
     return """
-    "\(moduleImports.map { "import \($0)" }.joined(separator: "\n"))"
+    \(moduleImports.map { "import \($0)" }.joined(separator: "\n"))
     """
   }
     
